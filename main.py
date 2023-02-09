@@ -15,13 +15,13 @@ df = pd.DataFrame({
 app.layout = html.Div([
     html.H1('Dashboard'),
     html.Div([
-        html.P('Input Text'),
+        html.P('입력해주세요'),
         dcc.Input(id='input-text', type='text', value='')
     ]),
     html.Br(),
     html.Div([
-        html.P('Table'),
-        html.Div(id='output-table')
+        html.P('결과 테이블'),
+        html.Table(id='output-table')
     ])
 ])
 
@@ -30,13 +30,19 @@ app.layout = html.Div([
     [Input(component_id='input-text', component_property='value')]
 )
 def update_table(input_text):
+    print(f"df: {df}")
+    print(f"input:text: {input_text}")
     filtered_df = df[df['col2'] == input_text]
-    return html.Table(
-        [html.Tr([html.Th(col) for col in filtered_df.columns])] +
-        [html.Tr([
-            html.Td(filtered_df.iloc[i][col]) for col in filtered_df.columns
-        ]) for i in range(len(filtered_df))]
-    )
+    if len(filtered_df) == 0:
+        return html.P('데이터가 없습니다. 데이터를 확인해주세요')
+    print(f"filtered_df: {filtered_df}")
+    table_rows = []
+    for i in range(len(filtered_df)):
+        row = []
+        for col in filtered_df.columns:
+            row.append(html.Td(filtered_df.iloc[i][col]))
+        table_rows.append(html.Tr(row))
+    return [html.Tr([html.Th(col) for col in filtered_df.columns])] + table_rows
 
 if __name__ == '__main__':
     app.run_server(debug=True)
